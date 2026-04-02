@@ -15,7 +15,6 @@ import com.github.retrooper.packetevents.util.LogManager;
 import io.github.retrooper.packetevents.impl.netty.NettyManagerImpl;
 import io.github.retrooper.packetevents.impl.netty.manager.protocol.ProtocolManagerAbstract;
 import io.github.retrooper.packetevents.impl.netty.manager.server.ServerManagerAbstract;
-import io.github.retrooper.packetevents.manager.server.ServerManagerImpl;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
@@ -62,7 +61,12 @@ public class TestPacketEventsBuilder {
                     return ProtocolVersion.UNKNOWN;
                 }
             };
-            private final ServerManager serverManager = new ServerManagerImpl();
+            private final ServerManager serverManager = new ServerManagerAbstract() {
+                @Override
+                public ServerVersion getVersion() {
+                    return ServerVersion.ERROR;
+                }
+            };
 
             private final NettyManager nettyManager = new NettyManagerImpl();
             private final LogManager logManager = new LogManager() {
