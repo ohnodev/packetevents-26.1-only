@@ -32,6 +32,9 @@ public class EnsureCorrectTagsTest extends BaseDummyAPITest {
     @DisplayName("Ensure tags are not empty")
     public void testTagsAreNotEmpty() throws ReflectiveOperationException {
         for (Field field : ItemTags.class.getFields()) {
+            if (field.isAnnotationPresent(Deprecated.class)) {
+                continue;
+            }
             final ItemTags tags = (ItemTags) field.get(ItemTags.class);
             if (tags.isReallyEmpty()) {
                 continue;
@@ -40,6 +43,9 @@ public class EnsureCorrectTagsTest extends BaseDummyAPITest {
         }
 
         for (Field field : BlockTags.class.getFields()) {
+            if (field.isAnnotationPresent(Deprecated.class)) {
+                continue;
+            }
             final BlockTags tags = (BlockTags) field.get(BlockTags.class);
             if (tags.isReallyEmpty()) {
                 continue;

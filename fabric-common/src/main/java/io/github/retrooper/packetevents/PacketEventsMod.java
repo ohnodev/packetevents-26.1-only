@@ -40,47 +40,14 @@ public class PacketEventsMod implements PreLaunchEntrypoint, ModInitializer {
     public void onPreLaunch() {
         INSTANCE = this;
         FabricLoader loader = FabricLoader.getInstance();
-
-        String chainLoadEntryPointName = "peMainChainLoad";
-        String clientChainLoadEntryPointName = "peClientChainLoad"; // For client-specific entrypoints
-
-        // Collect peMainChainLoad entrypoints (always present) and sort by version
-        List<ChainLoadEntryPoint> mainChainLoadEntryPoints = loader.getEntrypoints(chainLoadEntryPointName, ChainLoadEntryPoint.class);
-        mainChainLoadEntryPoints.sort((a, b) -> b.getNativeVersion().getProtocolVersion() - a.getNativeVersion().getProtocolVersion());
-
-        List<ChainLoadEntryPoint> allEntryPoints;
-        switch (loader.getEnvironmentType()) {
-            case CLIENT -> {
-                // Collect clientChainLoad entrypoints (only on client, might be empty) and sort by version then append main entry points
-                List<ChainLoadEntryPoint> clientChainLoadEntryPoints = loader.getEntrypoints(clientChainLoadEntryPointName, ChainLoadEntryPoint.class);
-                clientChainLoadEntryPoints.sort((a, b) -> b.getNativeVersion().getProtocolVersion() - a.getNativeVersion().getProtocolVersion());
-                clientChainLoadEntryPoints.addAll(mainChainLoadEntryPoints);
-                clientChainLoadEntryPoints.sort((a, b) -> b.getNativeVersion().getProtocolVersion() - a.getNativeVersion().getProtocolVersion());
-
-                // 1.21.1 Client -> 1.20.1 Client -> 1.21.4 Main -> 1.21.1 Main -> 1.20.1 Main
-                allEntryPoints = clientChainLoadEntryPoints;
-            }
-            case SERVER -> {
-                // 1.21.4 Main -> 1.21.1 Main -> 1.20.1 Main
-                allEntryPoints = mainChainLoadEntryPoints;
-            }
-            default -> throw new IllegalStateException("Unexpected value: " + loader.getEnvironmentType());
+        // 26.1-only fork: only support official mapping entrypoint.
+        List<ChainLoadEntryPoint> allEntryPoints = loader.getEntrypoints("peMainChainLoad", ChainLoadEntryPoint.class);
+        if (allEntryPoints.isEmpty()) {
+            throw new IllegalStateException("PacketEvents official entrypoint missing. This fork only supports official mappings.");
         }
 
-        // Initialize single chainload data instance
         ChainLoadData chainLoadData = new ChainLoadData();
-
-        // Execute all entrypoints using the same ChainLoadData instance
-        for (ChainLoadEntryPoint chainLoadEntryPoint : allEntryPoints) {
-            try {
-                chainLoadEntryPoint.initialize(chainLoadData);
-            } catch (Exception e) {
-                // Log error but continue with next entrypoint
-                System.err.println("Error processing entrypoint for version " +
-                        chainLoadEntryPoint.getNativeVersion() + ": " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
+        allEntryPoints.get(0).initialize(chainLoadData);
 
         // Ordinarily I wouldn't be using a static here but since we need to maintain compile-time backwards compatibility
         // We need to preserve the ABI of FactoryPacketEventsAPI and do this static awfulness
