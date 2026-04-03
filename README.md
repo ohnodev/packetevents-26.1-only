@@ -65,6 +65,8 @@ After a successful build, artifacts are written to:
 - `build/libs/packetevents-fabric-common-<version>.jar`
 - `build/libs/packetevents-netty-common-<version>.jar`
 
+`./gradlew build` also emits companion `-sources.jar` and `-javadoc.jar` artifacts for published modules (for example `packetevents-api`, `packetevents-fabric-common`, `packetevents-netty-common`) plus auxiliary module outputs such as `packetevents-adventure-text-serializer-gson-<version>.jar`.
+
 For Fabric servers, use `packetevents-fabric-<version>.jar` in your `mods/` folder.
 
 ### Prebuilt artifact in this repo
@@ -73,8 +75,33 @@ This branch also includes a prebuilt Fabric artifact for convenience:
 
 - `prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.jar`
 - `prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.zip`
+- `prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.jar.sha256`
+- `prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.jar.sig`
+- `prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.zip.sha256`
+- `prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.zip.sig`
 
 That lets teammates pull this branch and deploy directly without building first.
+
+Before using prebuilt artifacts, verify integrity and signature/provenance:
+
+```bash
+# Linux
+sha256sum -c prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.jar.sha256
+sha256sum -c prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.zip.sha256
+
+# macOS alternative
+shasum -a 256 prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.jar
+shasum -a 256 prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.zip
+```
+
+```bash
+# Import maintainer signing key (or use the project keyring when provided)
+curl -fsSL https://github.com/ohnodev.gpg | gpg --import
+
+# Verify detached signatures
+gpg --verify prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.jar.sig prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.jar
+gpg --verify prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.zip.sig prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.zip
+```
 
 ### Troubleshooting
 
