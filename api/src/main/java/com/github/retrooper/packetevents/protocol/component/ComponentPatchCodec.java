@@ -53,6 +53,9 @@ public final class ComponentPatchCodec {
             int expectedReaderIndex;
             if (lengthPrefixed) {
                 int size = wrapper.readVarInt();
+                if (size < 0) {
+                    throw new RuntimeException("Negative component size " + size + " for " + type.getName());
+                }
                 if (size > ByteBufHelper.readableBytes(wrapper.buffer)) {
                     throw new RuntimeException("Component size " + size + " for " + type.getName() + " out of bounds");
                 }
