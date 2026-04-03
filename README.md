@@ -29,6 +29,88 @@ This fork is intentionally narrowed to the Fabric `26.1` official-mappings path.
 
 Use this fork when you only need PacketEvents for your latest Fabric stack.
 
+## Build from source
+
+This fork targets the Fabric official-mappings path and currently requires **JDK 25** for a full build.
+
+### Prerequisites
+
+- Git
+- JDK 25 installed and available in `PATH`
+- Internet access for Gradle dependencies
+
+### macOS / Linux
+
+```bash
+git clone https://github.com/ohnodev/packetevents-26.1-only.git
+cd packetevents-26.1-only
+./gradlew clean build
+```
+
+### Windows (PowerShell)
+
+```powershell
+git clone https://github.com/ohnodev/packetevents-26.1-only.git
+cd packetevents-26.1-only
+.\gradlew.bat clean build
+```
+
+### Build artifacts
+
+After a successful build, artifacts are written to:
+
+- `build/libs/packetevents-fabric-<version>.jar`
+- `build/libs/packetevents-fabric-official-<version>.jar`
+- `build/libs/packetevents-api-<version>.jar`
+- `build/libs/packetevents-fabric-common-<version>.jar`
+- `build/libs/packetevents-netty-common-<version>.jar`
+
+`./gradlew build` also emits companion `-sources.jar` and `-javadoc.jar` artifacts for published modules (for example `packetevents-api`, `packetevents-fabric-common`, `packetevents-netty-common`) plus auxiliary module outputs such as `packetevents-adventure-text-serializer-gson-<version>.jar`.
+
+For Fabric servers, use `packetevents-fabric-<version>.jar` in your `mods/` folder.
+
+### Prebuilt artifact in this repo
+
+This branch also includes a prebuilt Fabric artifact for convenience:
+
+- `prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.jar`
+- `prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.zip`
+- `prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.jar.sha256`
+- `prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.jar.sig`
+- `prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.zip.sha256`
+- `prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.zip.sig`
+
+That lets teammates pull this branch and deploy directly without building first.
+
+Before using prebuilt artifacts, verify integrity and signature/provenance:
+
+```bash
+# Linux
+sha256sum -c prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.jar.sha256
+sha256sum -c prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.zip.sha256
+
+# macOS alternative
+shasum -a 256 prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.jar
+shasum -a 256 prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.zip
+```
+
+```bash
+# Import maintainer signing key (or use the project keyring when provided)
+curl -fsSL https://github.com/ohnodev.gpg | gpg --import
+
+# Verify detached signatures
+gpg --verify prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.jar.sig prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.jar
+gpg --verify prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.zip.sig prebuilt/packetevents-fabric-2.12.0+04d9562d8-SNAPSHOT.zip
+```
+
+### Troubleshooting
+
+- If Gradle fails with Java version errors, set `JAVA_HOME` to your JDK 25 installation.
+- If wrapper scripts are not executable on macOS/Linux:
+  - `chmod +x ./gradlew`
+- If dependency resolution fails, retry with:
+  - `./gradlew --refresh-dependencies clean build`
+
 ### What to test
 
 1. **26.1 server startup** (official path)
