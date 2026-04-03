@@ -29,6 +29,52 @@ This fork is intentionally narrowed to the Fabric `26.1` official-mappings path.
 
 Use this fork when you only need PacketEvents for your latest Fabric stack.
 
+## Build from source
+
+This fork targets the Fabric official-mappings path and currently requires **JDK 25** for a full build.
+
+### Prerequisites
+
+- Git
+- JDK 25 installed and available in `PATH`
+- Internet access for Gradle dependencies
+
+### macOS / Linux
+
+```bash
+git clone https://github.com/ohnodev/packetevents-26.1-only.git
+cd packetevents-26.1-only
+./gradlew clean build
+```
+
+### Windows (PowerShell)
+
+```powershell
+git clone https://github.com/ohnodev/packetevents-26.1-only.git
+cd packetevents-26.1-only
+.\gradlew.bat clean build
+```
+
+### Build artifacts
+
+After a successful build, artifacts are written to:
+
+- `build/libs/packetevents-fabric-<version>.jar`
+- `build/libs/packetevents-fabric-official-<version>.jar`
+- `build/libs/packetevents-api-<version>.jar`
+- `build/libs/packetevents-fabric-common-<version>.jar`
+- `build/libs/packetevents-netty-common-<version>.jar`
+
+For Fabric servers, use `packetevents-fabric-<version>.jar` in your `mods/` folder.
+
+### Troubleshooting
+
+- If Gradle fails with Java version errors, set `JAVA_HOME` to your JDK 25 installation.
+- If wrapper scripts are not executable on macOS/Linux:
+  - `chmod +x ./gradlew`
+- If dependency resolution fails, retry with:
+  - `./gradlew --refresh-dependencies clean build`
+
 ### What to test
 
 1. **26.1 server startup** (official path)
