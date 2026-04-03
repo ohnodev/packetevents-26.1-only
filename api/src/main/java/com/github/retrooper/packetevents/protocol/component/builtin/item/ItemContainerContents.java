@@ -18,7 +18,11 @@
 
 package com.github.retrooper.packetevents.protocol.component.builtin.item;
 
+import com.github.retrooper.packetevents.protocol.component.ComponentPatchCodec;
+import com.github.retrooper.packetevents.protocol.component.PatchableComponentMap;
 import com.github.retrooper.packetevents.protocol.item.ItemStack;
+import com.github.retrooper.packetevents.protocol.item.type.ItemType;
+import com.github.retrooper.packetevents.protocol.item.type.ItemTypes;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 
 import java.util.List;
@@ -37,7 +41,7 @@ public class ItemContainerContents {
         if (wrapper.getServerVersion().isNewerThanOrEquals(com.github.retrooper.packetevents.manager.server.ServerVersion.V_26_1)) {
             // 26.1 uses ItemStackTemplate optional entries for container slots.
             items = wrapper.readList(w -> {
-                ItemStack stack = w.readOptional(PacketWrapper::readPresentItemStack);
+                ItemStack stack = w.readOptional(ItemContainerContents::readItemStackTemplate);
                 return stack == null ? ItemStack.EMPTY : stack;
             });
         } else {
@@ -49,10 +53,30 @@ public class ItemContainerContents {
     public static void write(PacketWrapper<?> wrapper, ItemContainerContents contents) {
         if (wrapper.getServerVersion().isNewerThanOrEquals(com.github.retrooper.packetevents.manager.server.ServerVersion.V_26_1)) {
             wrapper.writeList(contents.items, (w, item) ->
-                    w.writeOptional(item == null || item.isEmpty() ? null : item, PacketWrapper::writePresentItemStack));
+                    w.writeOptional(item == null || item.isEmpty() ? null : item, ItemContainerContents::writeItemStackTemplate));
         } else {
             wrapper.writeList(contents.items, PacketWrapper::writeItemStack);
         }
+    }
+
+    private static ItemStack readItemStackTemplate(PacketWrapper<?> wrapper) {
+        ItemType itemType = wrapper.readMappedEntity(ItemTypes.getRegistry());
+        int count = wrapper.readVarInt();
+        if (count <= 0) {
+            throw new IllegalStateException("present item stack has non-positive count: " + count);
+        }
+        PatchableComponentMap components = ComponentPatchCodec.readPatchMap(wrapper, itemType, false);
+        if (components == null) {
+            return ItemStack.builder().type(itemType).amount(count).wrapper(wrapper).build();
+        }
+
+        return ItemStack.builder().type(itemType).amount(count).components(components).wrapper(wrapper).build();
+    }
+
+    private static void writeItemStackTemplate(PacketWrapper<?> wrapper, ItemStack stack) {
+        wrapper.writeMappedEntity(stack.getType());
+        wrapper.writeVarInt(stack.getAmount());
+        ComponentPatchCodec.writePatchMap(wrapper, stack, false);
     }
 
     public void addItem(ItemStack itemStack) {

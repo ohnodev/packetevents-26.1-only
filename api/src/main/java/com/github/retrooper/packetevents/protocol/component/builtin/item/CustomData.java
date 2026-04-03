@@ -30,7 +30,11 @@ public class CustomData {
     }
 
     public static NBTCompound read(PacketWrapper<?> wrapper) {
-        NBT nbt = wrapper.readNBTRaw();
+        NBT nbt = wrapper.readNullableNBT();
+        if (nbt == null) {
+            // 26.1 custom_data can be empty; normalize to an empty compound.
+            return new NBTCompound();
+        }
         if (nbt instanceof NBTCompound) {
             return (NBTCompound) nbt;
         }
