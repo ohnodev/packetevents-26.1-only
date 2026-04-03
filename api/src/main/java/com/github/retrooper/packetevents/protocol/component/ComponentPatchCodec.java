@@ -85,7 +85,8 @@ public final class ComponentPatchCodec {
 
     public static boolean writePatchMap(PacketWrapper<?> wrapper, ItemStack stack, boolean lengthPrefixed) {
         if (!stack.hasComponentPatches()) {
-            wrapper.writeShort(0);
+            wrapper.writeVarInt(0);
+            wrapper.writeVarInt(0);
             return false;
         }
 
