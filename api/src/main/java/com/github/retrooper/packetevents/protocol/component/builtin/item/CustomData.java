@@ -20,7 +20,6 @@ package com.github.retrooper.packetevents.protocol.component.builtin.item;
 
 import com.github.retrooper.packetevents.protocol.nbt.NBT;
 import com.github.retrooper.packetevents.protocol.nbt.NBTCompound;
-import com.github.retrooper.packetevents.protocol.nbt.NBTEnd;
 import com.github.retrooper.packetevents.protocol.nbt.NBTString;
 import com.github.retrooper.packetevents.util.adventure.AdventureNbtUtil;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
@@ -31,8 +30,8 @@ public class CustomData {
     }
 
     public static NBTCompound read(PacketWrapper<?> wrapper) {
-        NBT nbt = wrapper.readNBTRaw();
-        if (nbt == null || nbt == NBTEnd.INSTANCE) {
+        NBT nbt = wrapper.readNullableNBT();
+        if (nbt == null) {
             // 26.1 custom_data can be empty; normalize to an empty compound.
             return new NBTCompound();
         }
