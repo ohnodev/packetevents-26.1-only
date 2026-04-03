@@ -18,10 +18,17 @@
 
 package com.github.retrooper.packetevents.protocol.component.builtin.item;
 
+import com.github.retrooper.packetevents.protocol.component.ComponentType;
+import com.github.retrooper.packetevents.protocol.component.ComponentTypes;
+import com.github.retrooper.packetevents.protocol.component.PatchableComponentMap;
 import com.github.retrooper.packetevents.protocol.item.ItemStack;
+import com.github.retrooper.packetevents.protocol.item.type.ItemType;
+import com.github.retrooper.packetevents.protocol.item.type.ItemTypes;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class ItemContainerContents {
@@ -37,7 +44,7 @@ public class ItemContainerContents {
         if (wrapper.getServerVersion().isNewerThanOrEquals(com.github.retrooper.packetevents.manager.server.ServerVersion.V_26_1)) {
             // 26.1 uses ItemStackTemplate optional entries for container slots.
             items = wrapper.readList(w -> {
-                ItemStack stack = w.readOptional(PacketWrapper::readPresentItemStack);
+                ItemStack stack = w.readOptional(ItemContainerContents::readItemStackTemplate);
                 return stack == null ? ItemStack.EMPTY : stack;
             });
         } else {
@@ -49,9 +56,73 @@ public class ItemContainerContents {
     public static void write(PacketWrapper<?> wrapper, ItemContainerContents contents) {
         if (wrapper.getServerVersion().isNewerThanOrEquals(com.github.retrooper.packetevents.manager.server.ServerVersion.V_26_1)) {
             wrapper.writeList(contents.items, (w, item) ->
-                    w.writeOptional(item == null || item.isEmpty() ? null : item, PacketWrapper::writePresentItemStack));
+                    w.writeOptional(item == null || item.isEmpty() ? null : item, ItemContainerContents::writeItemStackTemplate));
         } else {
             wrapper.writeList(contents.items, PacketWrapper::writeItemStack);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static ItemStack readItemStackTemplate(PacketWrapper<?> wrapper) {
+        ItemType itemType = wrapper.readMappedEntity(ItemTypes.getRegistry());
+        int count = wrapper.readVarInt();
+        int presentCount = wrapper.readVarInt();
+        int absentCount = wrapper.readVarInt();
+
+        if (presentCount == 0 && absentCount == 0) {
+            return ItemStack.builder().type(itemType).amount(count).wrapper(wrapper).build();
+        }
+
+        PatchableComponentMap components = new PatchableComponentMap(
+                itemType.getComponents(wrapper.getServerVersion().toClientVersion()),
+                new HashMap<>(presentCount + absentCount),
+                wrapper.getRegistryHolder());
+
+        for (int i = 0; i < presentCount; i++) {
+            ComponentType<?> type = wrapper.readMappedEntity(ComponentTypes.getRegistry());
+            Object value = type.read(wrapper);
+            components.set((ComponentType<Object>) type, value);
+        }
+        for (int i = 0; i < absentCount; i++) {
+            components.unset(wrapper.readMappedEntity(ComponentTypes.getRegistry()));
+        }
+
+        return ItemStack.builder().type(itemType).amount(count).components(components).wrapper(wrapper).build();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void writeItemStackTemplate(PacketWrapper<?> wrapper, ItemStack stack) {
+        wrapper.writeMappedEntity(stack.getType());
+        wrapper.writeVarInt(stack.getAmount());
+
+        if (!stack.hasComponentPatches()) {
+            wrapper.writeShort(0);
+            return;
+        }
+
+        Map<ComponentType<?>, java.util.Optional<?>> allPatches = stack.getComponents().getPatches();
+        int presentCount = 0;
+        int absentCount = 0;
+        for (Map.Entry<ComponentType<?>, java.util.Optional<?>> patch : allPatches.entrySet()) {
+            if (patch.getValue().isPresent()) {
+                presentCount++;
+            } else {
+                absentCount++;
+            }
+        }
+        wrapper.writeVarInt(presentCount);
+        wrapper.writeVarInt(absentCount);
+
+        for (Map.Entry<ComponentType<?>, java.util.Optional<?>> patch : allPatches.entrySet()) {
+            if (patch.getValue().isPresent()) {
+                wrapper.writeVarInt(patch.getKey().getId(wrapper.getServerVersion().toClientVersion()));
+                ((ComponentType<Object>) patch.getKey()).write(wrapper, patch.getValue().get());
+            }
+        }
+        for (Map.Entry<ComponentType<?>, java.util.Optional<?>> patch : allPatches.entrySet()) {
+            if (!patch.getValue().isPresent()) {
+                wrapper.writeVarInt(patch.getKey().getId(wrapper.getServerVersion().toClientVersion()));
+            }
         }
     }
 
