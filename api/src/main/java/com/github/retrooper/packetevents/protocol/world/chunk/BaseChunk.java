@@ -30,6 +30,8 @@ import com.github.retrooper.packetevents.protocol.world.chunk.palette.ListPalett
 import com.github.retrooper.packetevents.protocol.world.chunk.palette.PaletteType;
 import com.github.retrooper.packetevents.protocol.world.chunk.storage.LegacyFlexibleStorage;
 import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState;
+import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
+import com.github.retrooper.packetevents.protocol.world.states.type.StateValue;
 
 public interface BaseChunk {
     int getBlockId(int x, int y, int z);
@@ -62,6 +64,28 @@ public interface BaseChunk {
     }
 
     boolean isEmpty();
+
+    default boolean hasFluid() {
+        ClientVersion version = PacketEvents.getAPI().getServerManager().getVersion().toClientVersion();
+        for (int y = 0; y < 16; y++) {
+            for (int z = 0; z < 16; z++) {
+                for (int x = 0; x < 16; x++) {
+                    int blockId = getBlockId(x, y, z);
+                    if (blockId == 0) {
+                        continue;
+                    }
+                    WrappedBlockState state = WrappedBlockState.getByGlobalId(version, blockId);
+                    if (state.getType() == StateTypes.WATER || state.getType() == StateTypes.LAVA) {
+                        return true;
+                    }
+                    if (state.hasProperty(StateValue.WATERLOGGED) && state.isWaterlogged()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
     static BaseChunk create() {
         ServerVersion version = PacketEvents.getAPI().getServerManager().getVersion();

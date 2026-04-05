@@ -26,6 +26,9 @@ import com.github.retrooper.packetevents.protocol.stream.NetStreamOutputWrapper;
 import com.github.retrooper.packetevents.protocol.world.chunk.BaseChunk;
 import com.github.retrooper.packetevents.protocol.world.chunk.palette.DataPalette;
 import com.github.retrooper.packetevents.protocol.world.chunk.palette.PaletteType;
+import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState;
+import com.github.retrooper.packetevents.protocol.world.states.type.StateTypes;
+import com.github.retrooper.packetevents.protocol.world.states.type.StateValue;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -151,11 +154,22 @@ public class Chunk_v1_18 implements BaseChunk {
         } else if (state == AIR && curr != AIR) {
             this.blockCount--;
         }
+
+        if (isFluidStateId(state) && !isFluidStateId(curr)) {
+            this.fluidCount++;
+        } else if (!isFluidStateId(state) && isFluidStateId(curr)) {
+            this.fluidCount--;
+        }
     }
 
     @Override
     public boolean isEmpty() {
         return this.blockCount == 0 && this.fluidCount == 0;
+    }
+
+    @Override
+    public boolean hasFluid() {
+        return this.fluidCount > 0 || BaseChunk.super.hasFluid();
     }
 
     public int getBlockCount() {
@@ -186,5 +200,16 @@ public class Chunk_v1_18 implements BaseChunk {
 
     public DataPalette getBiomeData() {
         return biomeData;
+    }
+
+    private static boolean isFluidStateId(int blockId) {
+        if (blockId == AIR) {
+            return false;
+        }
+        WrappedBlockState state = WrappedBlockState.getByGlobalId(blockId);
+        if (state.getType() == StateTypes.WATER || state.getType() == StateTypes.LAVA) {
+            return true;
+        }
+        return state.hasProperty(StateValue.WATERLOGGED) && state.isWaterlogged();
     }
 }
