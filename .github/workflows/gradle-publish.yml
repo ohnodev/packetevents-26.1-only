@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: fabric-build
-          path: build/libs/packetevents-fabric-*.jar
+          path: build/libs/packetevents-fabric-[0-9]*.jar
 
       - name: Upload build artifacts fabric-official
         uses: actions/upload-artifact@v4
@@ -60,6 +60,7 @@ jobs:
           path: build/libs/packetevents-fabric-official-*.jar
 
       - name: Publish with Gradle
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: ./gradlew publish --no-daemon
         env:
           MAVEN_SNAPSHOT_URL: ${{ secrets.MAVEN_SNAPSHOT_URL }}

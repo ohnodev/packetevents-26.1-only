@@ -35,6 +35,7 @@ import org.jetbrains.annotations.ApiStatus;
 public class Chunk_v1_18 implements BaseChunk {
 
     private static final int AIR = 0;
+    private static final int UNKNOWN_FLUID_COUNT = -1;
 
     private int blockCount;
     /**
@@ -54,7 +55,7 @@ public class Chunk_v1_18 implements BaseChunk {
      */
     @ApiStatus.Obsolete
     public Chunk_v1_18(int blockCount, DataPalette chunkData, DataPalette biomeData) {
-        this(blockCount, 0, chunkData, biomeData);
+        this(blockCount, UNKNOWN_FLUID_COUNT, chunkData, biomeData);
     }
 
     /**
@@ -98,7 +99,7 @@ public class Chunk_v1_18 implements BaseChunk {
     @Deprecated
     public static Chunk_v1_18 read(NetStreamInput in, boolean paletteLengthPrefix, boolean hasFluidCount) {
         int blockCount = in.readShort();
-        int fluidCount = hasFluidCount ? in.readShort() : 0;
+        int fluidCount = hasFluidCount ? in.readShort() : UNKNOWN_FLUID_COUNT;
         DataPalette chunkPalette = DataPalette.read(in, PaletteType.CHUNK,
                 true, paletteLengthPrefix);
         DataPalette biomePalette = DataPalette.read(in, PaletteType.BIOME,
@@ -135,7 +136,7 @@ public class Chunk_v1_18 implements BaseChunk {
     public static void write(NetStreamOutput out, Chunk_v1_18 section, boolean paletteLengthPrefix, boolean hasFluidCount) {
         out.writeShort(section.blockCount);
         if (hasFluidCount) {
-            out.writeShort(section.fluidCount);
+            out.writeShort(section.getOrComputeFluidCount());
         }
         DataPalette.write(out, section.chunkData, paletteLengthPrefix);
         DataPalette.write(out, section.biomeData, paletteLengthPrefix);
@@ -156,19 +157,30 @@ public class Chunk_v1_18 implements BaseChunk {
         }
 
         if (isFluidStateId(state) && !isFluidStateId(curr)) {
-            this.fluidCount++;
+            if (this.fluidCount != UNKNOWN_FLUID_COUNT) {
+                this.fluidCount++;
+            }
         } else if (!isFluidStateId(state) && isFluidStateId(curr)) {
-            this.fluidCount--;
+            if (this.fluidCount != UNKNOWN_FLUID_COUNT) {
+                this.fluidCount--;
+            }
         }
     }
 
     @Override
     public boolean isEmpty() {
-        return this.blockCount == 0 && this.fluidCount == 0;
+        return this.blockCount == 0 && !this.hasFluid();
     }
 
     @Override
     public boolean hasFluid() {
+        if (this.fluidCount > 0) {
+            return true;
+        }
+        if (this.fluidCount == 0) {
+            return false;
+        }
+        this.fluidCount = countFluidStates();
         return this.fluidCount > 0;
     }
 
@@ -200,6 +212,27 @@ public class Chunk_v1_18 implements BaseChunk {
 
     public DataPalette getBiomeData() {
         return biomeData;
+    }
+
+    private int getOrComputeFluidCount() {
+        if (this.fluidCount == UNKNOWN_FLUID_COUNT) {
+            this.fluidCount = countFluidStates();
+        }
+        return this.fluidCount;
+    }
+
+    private int countFluidStates() {
+        int count = 0;
+        for (int x = 0; x < 16; x++) {
+            for (int y = 0; y < 16; y++) {
+                for (int z = 0; z < 16; z++) {
+                    if (isFluidStateId(this.chunkData.get(x, y, z))) {
+                        count++;
+                    }
+                }
+            }
+        }
+        return count;
     }
 
     private static boolean isFluidStateId(int blockId) {
