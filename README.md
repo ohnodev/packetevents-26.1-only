@@ -42,16 +42,16 @@ This fork targets the Fabric official-mappings path and currently requires **JDK
 ### macOS / Linux
 
 ```bash
-git clone https://github.com/ohnodev/packetevents-26.1-only.git
-cd packetevents-26.1-only
+git clone https://github.com/ohnodev/packetevents.git packetevents-26.1
+cd packetevents-26.1
 ./gradlew clean build
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-git clone https://github.com/ohnodev/packetevents-26.1-only.git
-cd packetevents-26.1-only
+git clone https://github.com/ohnodev/packetevents.git packetevents-26.1
+cd packetevents-26.1
 .\gradlew.bat clean build
 ```
 
