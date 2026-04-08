@@ -1617,7 +1617,16 @@ public class WrappedBlockState {
 
         {
             Map<Map<StateValue, Object>, StateCacheValue> cache = new HashMap<>();
-            loadLegacy(cache);
+            boolean is26_2OnlyRuntime = true;
+            for (ClientVersion mappingVersion : MAPPING_VERSIONS) {
+                if (mappingVersion != ClientVersion.V_26_2) {
+                    is26_2OnlyRuntime = false;
+                    break;
+                }
+            }
+            if (!is26_2OnlyRuntime) {
+                loadLegacy(cache);
+            }
             for (ClientVersion version : MAPPING_VERSION_STEPS) {
                 loadModern(cache, version);
             }
