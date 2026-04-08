@@ -114,6 +114,17 @@ public final class VersionedRegistry<T extends MappedEntity> implements IRegistr
     public void unloadMappings() {
         this.typesBuilder.unloadFileMappings();
 
+        // Some snapshot version steps can intentionally omit full mapping files.
+        // In that case we inherit the previous step's resolved maps instead of crashing.
+        for (int i = 0; i < this.typeNames.length; i++) {
+            if (this.typeNames[i] == null) {
+                this.typeNames[i] = i == 0 ? Collections.emptyMap() : this.typeNames[i - 1];
+            }
+            if (this.typeIds[i] == null) {
+                this.typeIds[i] = i == 0 ? Collections.emptyMap() : this.typeIds[i - 1];
+            }
+        }
+
         // de-duplicate map objects for names to save memory;
         // only lookup last map to save time
         Map<String, T> lastNameMap = this.typeNames[0];

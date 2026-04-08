@@ -73,10 +73,10 @@ For Fabric servers, use `packetevents-fabric-<version>.jar` in your `mods/` fold
 
 This branch also includes a prebuilt Fabric artifact for convenience:
 
-- `prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.jar`
-- `prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.zip`
-- `prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.jar.sha256`
-- `prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.zip.sha256`
+- `prebuilt/packetevents-fabric-2.12.0+2b5414d-SNAPSHOT.jar`
+- `prebuilt/packetevents-fabric-2.12.0+2b5414d-SNAPSHOT.zip`
+- `prebuilt/packetevents-fabric-2.12.0+2b5414d-SNAPSHOT.jar.sha256`
+- `prebuilt/packetevents-fabric-2.12.0+2b5414d-SNAPSHOT.zip.sha256`
 
 That lets teammates pull this branch and deploy directly without building first.
 
@@ -84,12 +84,12 @@ Before using prebuilt artifacts, verify integrity:
 
 ```bash
 # Linux
-sha256sum -c prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.jar.sha256
-sha256sum -c prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.zip.sha256
+sha256sum -c prebuilt/packetevents-fabric-2.12.0+2b5414d-SNAPSHOT.jar.sha256
+sha256sum -c prebuilt/packetevents-fabric-2.12.0+2b5414d-SNAPSHOT.zip.sha256
 
 # macOS alternative
-shasum -a 256 prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.jar
-shasum -a 256 prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.zip
+shasum -a 256 prebuilt/packetevents-fabric-2.12.0+2b5414d-SNAPSHOT.jar
+shasum -a 256 prebuilt/packetevents-fabric-2.12.0+2b5414d-SNAPSHOT.zip
 ```
 
 ### Troubleshooting

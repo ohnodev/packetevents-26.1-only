@@ -3,7 +3,7 @@
   "id": "packetevents-fabric-official",
   "version": "${version}",
   "name": "PacketEvents Fabric (Official Mappings)",
-  "description": "Official-mapped fabric support for MC 26.1+ (unobfuscated names).",
+  "description": "Official-mapped fabric support for MC 26.2+ (unobfuscated names).",
   "authors": [
     "retrooper",
     "Axionize"
@@ -23,7 +23,7 @@
   "accessWidener": "packetevents.accesswidener",
   "depends": {
     "fabricloader": ">=0.15.11",
-    "minecraft": ">1.21.11",
+    "minecraft": ">=26.2-alpha.1",
     "java": ">=25",
     "packetevents-fabric-common": "*"
   },

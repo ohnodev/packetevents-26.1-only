@@ -198,6 +198,7 @@ public final class Biomes {
     public static final Biome JUNGLE = define("jungle");
     public static final Biome LUKEWARM_OCEAN = define("lukewarm_ocean");
     public static final Biome LUSH_CAVES = define("lush_caves");
+    public static final Biome SULFUR_CAVES = define("sulfur_caves");
     public static final Biome MANGROVE_SWAMP = define("mangrove_swamp");
     public static final Biome MEADOW = define("meadow");
     public static final Biome MUSHROOM_FIELDS = define("mushroom_fields");
