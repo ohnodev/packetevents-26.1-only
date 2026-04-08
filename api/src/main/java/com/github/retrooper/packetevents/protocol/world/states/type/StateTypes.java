@@ -67,7 +67,9 @@ public final class StateTypes {
     }
 
     public static StateType getById(ClientVersion version, int id) {
-        return getMappedById(version, id).getStateType();
+        StateType.Mapped mapped = getMappedById(version, id);
+        // Snapshot mappings may briefly lag behind Mojang registries; never crash tag sync on unknown ids.
+        return mapped == null ? AIR : mapped.getStateType();
     }
 
     public static StateType.Mapped getMappedById(ClientVersion version, int id) {

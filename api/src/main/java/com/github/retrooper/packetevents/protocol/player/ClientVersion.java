@@ -121,8 +121,9 @@ public enum ClientVersion {
     V_1_21_9(773),
     V_1_21_11(774),
 
+    // 26.1 and 26.2 snapshots share protocol 775.
     V_26_1(775),
-    V_26_2(776),
+    V_26_2(775),
     //TODO UPDATE Add new protocol version field
 
     @Deprecated
@@ -199,6 +200,10 @@ public enum ClientVersion {
      */
     @NotNull
     public static ClientVersion getById(int protocolVersion) {
+        if (protocolVersion == V_26_2.protocolVersion) {
+            // Prefer latest snapshot when protocol id is shared.
+            return V_26_2;
+        }
         if (protocolVersion < LOWEST_SUPPORTED_PROTOCOL_VERSION) {
             return getOldest();
         } else if (protocolVersion > HIGHEST_SUPPORTED_PROTOCOL_VERSION) {
