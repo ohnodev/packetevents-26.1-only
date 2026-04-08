@@ -100,6 +100,9 @@ public class WrappedBlockState {
             MAPPING_INDEXES[version.ordinal()] = (byte) (LEGACY_MAPPING_INDEX + j);
             MAPPING_VERSIONS[version.ordinal()] = mappingVersion;
         }
+        // Deprecated alias: protocol 775 callers using V_26_1 must resolve to 26.2 mappings.
+        MAPPING_INDEXES[ClientVersion.V_26_1.ordinal()] = MAPPING_INDEXES[ClientVersion.V_26_2.ordinal()];
+        MAPPING_VERSIONS[ClientVersion.V_26_1.ordinal()] = MAPPING_VERSIONS[ClientVersion.V_26_2.ordinal()];
         HIGHEST_MAPPING_INDEX = MAPPING_INDEXES[versions.length - 1];
     }
 

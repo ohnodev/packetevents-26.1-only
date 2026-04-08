@@ -248,14 +248,14 @@ public enum ClientVersion {
 
     /**
      * Is this client version newer than the compared client version?
-     * This method simply checks if this client version's protocol version is greater than
-     * the compared client version's protocol version.
+     * This method compares enum declaration order to preserve ordering when multiple
+     * constants intentionally share the same protocol id (for example V_26_1 and V_26_2).
      *
      * @param target Compared client version.
      * @return Is this client version newer than the compared client version.
      */
     public boolean isNewerThan(ClientVersion target) {
-        return protocolVersion > target.protocolVersion;
+        return ordinal() > target.ordinal();
     }
 
     /**

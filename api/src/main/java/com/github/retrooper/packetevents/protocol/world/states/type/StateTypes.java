@@ -72,7 +72,7 @@ public final class StateTypes {
         return mapped == null ? AIR : mapped.getStateType();
     }
 
-    public static StateType.Mapped getMappedById(ClientVersion version, int id) {
+    public static StateType.@Nullable Mapped getMappedById(ClientVersion version, int id) {
         return REGISTRY.getById(version, id);
     }
 
