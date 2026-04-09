@@ -121,14 +121,17 @@ public enum ClientVersion {
     V_1_21_9(773),
     V_1_21_11(774),
 
+    // Legacy alias kept for source compatibility; protocol 775 resolves to V_26_2 at runtime.
+    @Deprecated
     V_26_1(775),
+    V_26_2(775),
     //TODO UPDATE Add new protocol version field
 
     @Deprecated
     LOWER_THAN_SUPPORTED_VERSIONS(V_1_7_2.protocolVersion - 1, true),
     //TODO UPDATE Update HIGHER_THAN_SUPPORTED_VERSIONS field
     @Deprecated
-    HIGHER_THAN_SUPPORTED_VERSIONS(V_26_1.protocolVersion + 1, true),
+    HIGHER_THAN_SUPPORTED_VERSIONS(V_26_2.protocolVersion + 1, true),
 
     UNKNOWN(-1, true);
 
@@ -198,6 +201,10 @@ public enum ClientVersion {
      */
     @NotNull
     public static ClientVersion getById(int protocolVersion) {
+        if (protocolVersion == V_26_2.protocolVersion) {
+            // Prefer latest snapshot when protocol id is shared.
+            return V_26_2;
+        }
         if (protocolVersion < LOWEST_SUPPORTED_PROTOCOL_VERSION) {
             return getOldest();
         } else if (protocolVersion > HIGHEST_SUPPORTED_PROTOCOL_VERSION) {
@@ -241,50 +248,59 @@ public enum ClientVersion {
 
     /**
      * Is this client version newer than the compared client version?
-     * This method simply checks if this client version's protocol version is greater than
-     * the compared client version's protocol version.
+     * This method compares protocol ids first, then enum declaration order as a tie-breaker
+     * when two constants intentionally share the same protocol id (for example V_26_1 and V_26_2).
      *
      * @param target Compared client version.
      * @return Is this client version newer than the compared client version.
      */
     public boolean isNewerThan(ClientVersion target) {
-        return protocolVersion > target.protocolVersion;
+        return compareByProtocolThenOrdinal(target) > 0;
     }
 
     /**
      * Is this client version newer than or equal to the compared client version?
-     * This method simply checks if this client version's protocol version is newer than or equal to
-     * the compared client version's protocol version.
+     * This method compares protocol ids first, then enum declaration order as a tie-breaker
+     * when two constants intentionally share the same protocol id.
      *
      * @param target Compared client version.
      * @return Is this client version newer than or equal to the compared client version.
      */
     public boolean isNewerThanOrEquals(ClientVersion target) {
-        return this.protocolVersion >= target.protocolVersion;
+        return compareByProtocolThenOrdinal(target) >= 0;
     }
 
     /**
      * Is this client version older than the compared client version?
-     * This method simply checks if this client version's protocol version is less than
-     * the compared client version's protocol version.
+     * This method compares protocol ids first, then enum declaration order as a tie-breaker
+     * when two constants intentionally share the same protocol id.
      *
      * @param target Compared client version.
      * @return Is this client version older than the compared client version.
      */
     public boolean isOlderThan(ClientVersion target) {
-        return protocolVersion < target.protocolVersion;
+        return compareByProtocolThenOrdinal(target) < 0;
     }
 
     /**
      * Is this client version older than or equal to the compared client version?
-     * This method simply checks if this client version's protocol version is older than or equal to
-     * the compared client version's protocol version.
+     * This method compares protocol ids first, then enum declaration order as a tie-breaker
+     * when two constants intentionally share the same protocol id.
      *
      * @param target Compared client version.
      * @return Is this client version older than or equal to the compared client version.
      */
     public boolean isOlderThanOrEquals(ClientVersion target) {
-        return this.protocolVersion <= target.protocolVersion;
+        return compareByProtocolThenOrdinal(target) <= 0;
+    }
+
+    private int compareByProtocolThenOrdinal(ClientVersion target) {
+        int thisProtocol = protocolVersion < 0 ? Integer.MAX_VALUE : protocolVersion;
+        int targetProtocol = target.protocolVersion < 0 ? Integer.MAX_VALUE : target.protocolVersion;
+        if (thisProtocol != targetProtocol) {
+            return Integer.compare(thisProtocol, targetProtocol);
+        }
+        return Integer.compare(this.ordinal(), target.ordinal());
     }
 
     /**

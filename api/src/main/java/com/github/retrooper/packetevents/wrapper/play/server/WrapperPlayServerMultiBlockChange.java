@@ -18,6 +18,7 @@
 
 package com.github.retrooper.packetevents.wrapper.play.server;
 
+import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
@@ -79,6 +80,8 @@ public class WrapperPlayServerMultiBlockChange extends PacketWrapper<WrapperPlay
                 this.blockData[i] = new EncodedBlock(blockId, x, y, z);
             }
         }
+
+        logSulfurChanges();
     }
 
     @Override
@@ -140,6 +143,43 @@ public class WrapperPlayServerMultiBlockChange extends PacketWrapper<WrapperPlay
 
     public void setBlocks(EncodedBlock[] blocks) {
         this.blockData = blocks;
+    }
+
+    private void logSulfurChanges() {
+        if (!BlockChangeTraceUtil.shouldDebugTraceBlockUpdates()) {
+            return;
+        }
+        if (blockData == null || blockData.length == 0) {
+            return;
+        }
+
+        int sulfurChanges = 0;
+        StringBuilder sample = new StringBuilder();
+        int sampleBudget = 3;
+        for (EncodedBlock encodedBlock : blockData) {
+            String stateName = BlockChangeTraceUtil.getStateNameSafe(serverVersion, encodedBlock.getBlockId());
+            if (!BlockChangeTraceUtil.isSulfurFamily(stateName)) {
+                continue;
+            }
+            sulfurChanges++;
+            if (sampleBudget-- > 0) {
+                if (sample.length() > 0) {
+                    sample.append("; ");
+                }
+                sample.append(encodedBlock.getX()).append(',').append(encodedBlock.getY()).append(',').append(encodedBlock.getZ())
+                        .append('=').append(stateName).append('#').append(encodedBlock.getBlockId());
+            }
+        }
+
+        if (sulfurChanges > 0) {
+            int chunkX = chunkPosition != null ? chunkPosition.getX() : 0;
+            int chunkZ = chunkPosition != null ? chunkPosition.getZ() : 0;
+            PacketEvents.getAPI().getLogger().fine("[TRACE][multi-block-update]"
+                    + " changes=" + sulfurChanges + "/" + blockData.length
+                    + " sample=" + sample
+                    + " chunkX=" + chunkX
+                    + " chunkZ=" + chunkZ);
+        }
     }
 
     public static class EncodedBlock {

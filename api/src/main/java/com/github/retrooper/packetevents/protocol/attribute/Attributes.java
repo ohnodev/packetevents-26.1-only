@@ -73,7 +73,7 @@ public final class Attributes {
     public static final Attribute FOLLOW_RANGE = define("follow_range",
             "generic", 32d, 0d, 2048d);
     public static final Attribute KNOCKBACK_RESISTANCE = define("knockback_resistance",
-            "generic", 0d, 0d, 1d);
+            "generic", 0d, -2d, 1d);
     public static final Attribute LUCK = define("luck",
             "generic", 0d, -1024d, 1024d);
     public static final Attribute MAX_HEALTH = define("max_health",
@@ -202,6 +202,22 @@ public final class Attributes {
      */
     public static final Attribute WAYPOINT_RECEIVE_RANGE = define("waypoint_receive_range",
             null, 0d, 0d, 60_000_000d);
+
+    /**
+     * Added with 26.2
+     */
+    public static final Attribute AIR_DRAG_MODIFIER = define("air_drag_modifier",
+            null, 1d, 0d, 2048d);
+    /**
+     * Added with 26.2
+     */
+    public static final Attribute BOUNCINESS = define("bounciness",
+            null, 0d, 0d, 1d);
+    /**
+     * Added with 26.2
+     */
+    public static final Attribute FRICTION_MODIFIER = define("friction_modifier",
+            null, 1d, 0d, 2048d);
 
     /**
      * This attribute has been renamed in 1.20.5 to {@link #JUMP_STRENGTH}

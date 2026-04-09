@@ -110,6 +110,9 @@ import com.github.retrooper.packetevents.protocol.component.builtin.item.PotDeco
 import com.github.retrooper.packetevents.protocol.component.builtin.item.SuspiciousStewEffects;
 import com.github.retrooper.packetevents.protocol.component.builtin.item.WritableBookContent;
 import com.github.retrooper.packetevents.protocol.component.builtin.item.WrittenBookContent;
+import com.github.retrooper.packetevents.protocol.item.ItemStack;
+import com.github.retrooper.packetevents.protocol.item.type.ItemType;
+import com.github.retrooper.packetevents.protocol.item.type.ItemTypes;
 import com.github.retrooper.packetevents.protocol.item.instrument.Instrument;
 import com.github.retrooper.packetevents.protocol.nbt.NBTCompound;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
@@ -298,6 +301,11 @@ public final class ComponentTypes {
             PotDecorations::read, PotDecorations::write);
     public static final ComponentType<ItemContainerContents> CONTAINER = define("container",
             ItemContainerContents::read, ItemContainerContents::write);
+    /**
+     * @versions 26.2+
+     */
+    public static final ComponentType<ItemStack> SULFUR_CUBE_CONTENT = define("sulfur_cube_content",
+            ComponentTypes::readSulfurCubeContent, ComponentTypes::writeSulfurCubeContent);
     public static final ComponentType<ItemBlockStateProperties> BLOCK_STATE = define("block_state",
             ItemBlockStateProperties::read, ItemBlockStateProperties::write);
     public static final ComponentType<ItemBees> BEES = define("bees",
@@ -573,5 +581,29 @@ public final class ComponentTypes {
 
     static {
         REGISTRY.unloadMappings();
+    }
+
+    private static ItemStack readSulfurCubeContent(PacketWrapper<?> wrapper) {
+        final ItemType itemType = wrapper.readMappedEntity(ItemTypes.getRegistry());
+        final int count = wrapper.readVarInt();
+        if (count <= 0) {
+            throw new IllegalStateException("Invalid sulfur_cube_content count " + count);
+        }
+
+        PatchableComponentMap components = ComponentPatchCodec.readPatchMap(wrapper, itemType, false);
+        if (components == null) {
+            return ItemStack.builder().type(itemType).amount(count).wrapper(wrapper).build();
+        }
+        return ItemStack.builder().type(itemType).amount(count).components(components).wrapper(wrapper).build();
+    }
+
+    private static void writeSulfurCubeContent(PacketWrapper<?> wrapper, ItemStack stack) {
+        if (stack == null || stack.isEmpty()) {
+            throw new IllegalStateException("sulfur_cube_content cannot be empty");
+        }
+
+        wrapper.writeMappedEntity(stack.getType());
+        wrapper.writeVarInt(stack.getAmount());
+        ComponentPatchCodec.writePatchMap(wrapper, stack, false);
     }
 }

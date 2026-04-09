@@ -18,6 +18,7 @@
 
 package com.github.retrooper.packetevents.wrapper.play.client;
 
+import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
@@ -26,7 +27,10 @@ import com.github.retrooper.packetevents.protocol.world.BlockFace;
 import com.github.retrooper.packetevents.util.Vector3i;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 
+import java.util.logging.Level;
+
 public class WrapperPlayClientPlayerDigging extends PacketWrapper<WrapperPlayClientPlayerDigging> {
+    private static final boolean DEBUG_DIG_TRACE = Boolean.getBoolean("packetevents.debug.dig.trace");
     private DiggingAction action;
     private Vector3i blockPosition;
     private BlockFace blockFace;
@@ -77,6 +81,13 @@ public class WrapperPlayClientPlayerDigging extends PacketWrapper<WrapperPlayCli
 
         if (serverVersion.isNewerThanOrEquals(ServerVersion.V_1_19)) {
             sequence = readVarInt();
+        }
+
+        if (shouldDebugTraceDigAction(action)) {
+            PacketEvents.getAPI().getLogger().fine("[TRACE][dig-in] action=" + action
+                    + " pos=" + blockPosition
+                    + " face=" + blockFaceId
+                    + " seq=" + sequence);
         }
     }
 
@@ -147,5 +158,20 @@ public class WrapperPlayClientPlayerDigging extends PacketWrapper<WrapperPlayCli
 
     public void setSequence(int sequence) {
         this.sequence = sequence;
+    }
+
+    private boolean shouldTraceDigAction(DiggingAction diggingAction) {
+        return diggingAction == DiggingAction.START_DIGGING
+                || diggingAction == DiggingAction.FINISHED_DIGGING
+                || diggingAction == DiggingAction.CANCELLED_DIGGING;
+    }
+
+    private boolean shouldDebugTraceDigAction(DiggingAction diggingAction) {
+        if (!shouldTraceDigAction(diggingAction) || PacketEvents.getAPI() == null) {
+            return false;
+        }
+        return DEBUG_DIG_TRACE
+                && PacketEvents.getAPI().getSettings().isDebugEnabled()
+                && PacketEvents.getAPI().getLogger().isLoggable(Level.FINE);
     }
 }

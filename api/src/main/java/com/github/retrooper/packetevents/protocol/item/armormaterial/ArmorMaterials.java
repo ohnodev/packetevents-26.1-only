@@ -164,6 +164,34 @@ public final class ArmorMaterials {
      * Added with 1.21.4
      */
     public static final ArmorMaterial TRADER_LLAMA = define("trader_llama");
+    /**
+     * Added with 26.2
+     */
+    public static final ArmorMaterial AMETHYST = define("amethyst");
+    /**
+     * Added with 26.2
+     */
+    public static final ArmorMaterial COPPER = define("copper");
+    /**
+     * Added with 26.2
+     */
+    public static final ArmorMaterial EMERALD = define("emerald");
+    /**
+     * Added with 26.2
+     */
+    public static final ArmorMaterial LAPIS = define("lapis");
+    /**
+     * Added with 26.2
+     */
+    public static final ArmorMaterial QUARTZ = define("quartz");
+    /**
+     * Added with 26.2
+     */
+    public static final ArmorMaterial REDSTONE = define("redstone");
+    /**
+     * Added with 26.2
+     */
+    public static final ArmorMaterial RESIN = define("resin");
 
     static {
         REGISTRY.unloadMappings();

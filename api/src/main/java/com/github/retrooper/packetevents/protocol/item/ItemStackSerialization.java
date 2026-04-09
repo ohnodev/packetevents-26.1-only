@@ -18,15 +18,22 @@
 
 package com.github.retrooper.packetevents.protocol.item;
 
+import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.component.ComponentPatchCodec;
+import com.github.retrooper.packetevents.protocol.component.ComponentTypes;
 import com.github.retrooper.packetevents.protocol.component.PatchableComponentMap;
 import com.github.retrooper.packetevents.protocol.item.type.ItemType;
 import com.github.retrooper.packetevents.protocol.item.type.ItemTypes;
 import com.github.retrooper.packetevents.protocol.nbt.NBTCompound;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
 import com.github.retrooper.packetevents.protocol.player.ClientVersion;
+import com.github.retrooper.packetevents.util.mappings.IRegistry;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.logging.Level;
 
 public final class ItemStackSerialization {
 
@@ -65,6 +72,7 @@ public final class ItemStackSerialization {
         int amount = wrapper.readByte();
         int legacyData = version.isOlderThan(ClientVersion.V_1_13) ? wrapper.readShort() : -1;
         NBTCompound nbt = wrapper.readNBT();
+        logRawItemDecode(wrapper, "legacy", typeId, type, amount, false);
         return ItemStack.builder().type(type).amount(amount)
                 .nbt(nbt).legacyData(legacyData)
                 .wrapper(wrapper).build();
@@ -113,8 +121,13 @@ public final class ItemStackSerialization {
         if (count <= 0) {
             return ItemStack.EMPTY;
         }
-        ItemType itemType = wrapper.readMappedEntity(ItemTypes.getRegistry());
+        int rawTypeId = wrapper.readVarInt();
+        ClientVersion version = wrapper.getServerVersion().toClientVersion();
+        IRegistry<ItemType> registry = wrapper.replaceRegistry(ItemTypes.getRegistry());
+        ItemType itemType = registry.getByIdOrThrow(version, rawTypeId);
         PatchableComponentMap components = ComponentPatchCodec.readPatchMap(wrapper, itemType, lengthPrefixed);
+        logRawItemDecode(wrapper, lengthPrefixed ? "modern-untrusted" : "modern", rawTypeId, itemType, count,
+                components != null && components.has(ComponentTypes.TOOL));
         if (components == null) {
             return ItemStack.builder().type(itemType).amount(count).wrapper(wrapper).build();
         }
@@ -144,5 +157,42 @@ public final class ItemStackSerialization {
         wrapper.writeVarInt(stack.getAmount());
         wrapper.writeMappedEntity(stack.getType());
         ComponentPatchCodec.writePatchMap(wrapper, stack, lengthPrefixed);
+    }
+
+    private static void logRawItemDecode(PacketWrapper<?> wrapper, String mode, int rawTypeId, ItemType resolvedType,
+                                         int amount, boolean hasToolComponent) {
+        if (!shouldTraceInventoryPacket(wrapper)) {
+            return;
+        }
+        if (PacketEvents.getAPI() == null || PacketEvents.getAPI().getLogger() == null) {
+            return;
+        }
+        // Keep high-frequency inventory tracing behind explicit debug logging.
+        if (!PacketEvents.getAPI().getSettings().isDebugEnabled()
+                || !PacketEvents.getAPI().getLogger().isLoggable(Level.FINE)) {
+            return;
+        }
+        try {
+            PacketEvents.getAPI().getLogger().fine(
+                    "[TRACE][pe-item-decode] mode=" + mode
+                            + " packet=" + wrapper.getPacketTypeData().getPacketType()
+                            + " nativeId=" + wrapper.getNativePacketId()
+                            + " server=" + wrapper.getServerVersion()
+                            + " client=" + wrapper.getServerVersion().toClientVersion()
+                            + " rawTypeId=" + rawTypeId
+                            + " resolved=" + (resolvedType != null ? resolvedType.getName() : "null")
+                            + " amount=" + amount
+                            + " hasTOOL=" + hasToolComponent
+            );
+        } catch (Exception ignored) {
+            // Never fail packet decode due to tracing.
+        }
+    }
+
+    private static boolean shouldTraceInventoryPacket(PacketWrapper<?> wrapper) {
+        PacketTypeCommon packetType = wrapper.getPacketTypeData().getPacketType();
+        return packetType == PacketType.Play.Server.WINDOW_ITEMS
+                || packetType == PacketType.Play.Server.SET_SLOT
+                || packetType == PacketType.Play.Server.SET_PLAYER_INVENTORY;
     }
 }

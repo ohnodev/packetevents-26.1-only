@@ -52,6 +52,9 @@ public class PacketEventsMod implements PreLaunchEntrypoint, ModInitializer {
         // Ordinarily I wouldn't be using a static here but since we need to maintain compile-time backwards compatibility
         // We need to preserve the ABI of FactoryPacketEventsAPI and do this static awfulness
         FabricPacketEventsAPIManagerFactory.init(chainLoadData);
+        // Fail fast on boot if latest-only chain load did not wire required managers.
+        FabricPacketEventsAPIManagerFactory.getLazyPlayerManagerHolder();
+        FabricPacketEventsAPIManagerFactory.getLazyRegistryManagerHolder();
 
         FabricPacketEventsAPI fabricPacketEventsAPI = new FabricPacketEventsAPI(PacketEventsMod.MOD_ID, loader.getEnvironmentType());
 

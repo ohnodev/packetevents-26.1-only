@@ -18,6 +18,7 @@
 
 package com.github.retrooper.packetevents.wrapper.play.server;
 
+import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
@@ -53,6 +54,17 @@ public class WrapperPlayServerBlockChange extends PacketWrapper<WrapperPlayServe
         } else {
             blockPosition = readBlockPosition();
             blockID = readVarInt();
+        }
+
+        if (!BlockChangeTraceUtil.shouldDebugTraceBlockUpdates()) {
+            return;
+        }
+        String stateName = BlockChangeTraceUtil.getStateNameSafe(serverVersion, blockID);
+        if (BlockChangeTraceUtil.isSulfurFamily(stateName)) {
+            PacketEvents.getAPI().getLogger().fine("[TRACE][block-update]"
+                    + " pos=" + blockPosition
+                    + " blockId=" + blockID
+                    + " state=" + stateName);
         }
     }
 
@@ -99,4 +111,5 @@ public class WrapperPlayServerBlockChange extends PacketWrapper<WrapperPlayServe
     public void setBlockState(WrappedBlockState blockState) {
         this.blockID = blockState.getGlobalId();
     }
+
 }

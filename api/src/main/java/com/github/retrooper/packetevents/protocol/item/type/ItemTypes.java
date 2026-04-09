@@ -19,6 +19,7 @@
 package com.github.retrooper.packetevents.protocol.item.type;
 
 import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.manager.registry.ItemRegistry;
 import com.github.retrooper.packetevents.netty.buffer.ByteBufHelper;
 import com.github.retrooper.packetevents.netty.buffer.UnpooledByteBufAllocationHelper;
 import com.github.retrooper.packetevents.protocol.component.ComponentType;
@@ -54,6 +55,7 @@ public final class ItemTypes {
 
     private static final VersionedRegistry<ItemType> REGISTRY = new VersionedRegistry<>("item");
     private static final Map<StateType, ItemType> HELD_TO_PLACED_MAP = new HashMap<>();
+    private static final ClientVersion ONLY_SUPPORTED_VERSION = ClientVersion.V_26_2;
 
     // <editor-fold desc="item type definitions" defaultstate="collapsed">
     public static final ItemType GILDED_BLACKSTONE = builder("gilded_blackstone").setMaxAmount(64).setPlacedType(StateTypes.GILDED_BLACKSTONE).build();
@@ -1927,6 +1929,122 @@ public final class ItemTypes {
      * @versions 26.1+
      */
     public static final ItemType GOLDEN_DANDELION = builder("golden_dandelion").setMaxAmount(64).setPlacedType(StateTypes.GOLDEN_DANDELION).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType SULFUR = builder("sulfur").setMaxAmount(64).setPlacedType(StateTypes.SULFUR).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType POTENT_SULFUR = builder("potent_sulfur").setMaxAmount(64).setPlacedType(StateTypes.POTENT_SULFUR).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType SULFUR_SLAB = builder("sulfur_slab").setMaxAmount(64).setPlacedType(StateTypes.SULFUR_SLAB).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType SULFUR_STAIRS = builder("sulfur_stairs").setMaxAmount(64).setPlacedType(StateTypes.SULFUR_STAIRS).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType SULFUR_WALL = builder("sulfur_wall").setMaxAmount(64).setPlacedType(StateTypes.SULFUR_WALL).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType POLISHED_SULFUR = builder("polished_sulfur").setMaxAmount(64).setPlacedType(StateTypes.POLISHED_SULFUR).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType POLISHED_SULFUR_SLAB = builder("polished_sulfur_slab").setMaxAmount(64).setPlacedType(StateTypes.POLISHED_SULFUR_SLAB).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType POLISHED_SULFUR_STAIRS = builder("polished_sulfur_stairs").setMaxAmount(64).setPlacedType(StateTypes.POLISHED_SULFUR_STAIRS).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType POLISHED_SULFUR_WALL = builder("polished_sulfur_wall").setMaxAmount(64).setPlacedType(StateTypes.POLISHED_SULFUR_WALL).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType SULFUR_BRICKS = builder("sulfur_bricks").setMaxAmount(64).setPlacedType(StateTypes.SULFUR_BRICKS).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType SULFUR_BRICK_SLAB = builder("sulfur_brick_slab").setMaxAmount(64).setPlacedType(StateTypes.SULFUR_BRICK_SLAB).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType SULFUR_BRICK_STAIRS = builder("sulfur_brick_stairs").setMaxAmount(64).setPlacedType(StateTypes.SULFUR_BRICK_STAIRS).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType SULFUR_BRICK_WALL = builder("sulfur_brick_wall").setMaxAmount(64).setPlacedType(StateTypes.SULFUR_BRICK_WALL).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType CHISELED_SULFUR = builder("chiseled_sulfur").setMaxAmount(64).setPlacedType(StateTypes.CHISELED_SULFUR).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType SULFUR_CUBE_BUCKET = builder("sulfur_cube_bucket").setMaxAmount(1).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType SULFUR_CUBE_SPAWN_EGG = builder("sulfur_cube_spawn_egg").setMaxAmount(64).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType CINNABAR = builder("cinnabar").setMaxAmount(64).setPlacedType(StateTypes.CINNABAR).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType CINNABAR_SLAB = builder("cinnabar_slab").setMaxAmount(64).setPlacedType(StateTypes.CINNABAR_SLAB).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType CINNABAR_STAIRS = builder("cinnabar_stairs").setMaxAmount(64).setPlacedType(StateTypes.CINNABAR_STAIRS).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType CINNABAR_WALL = builder("cinnabar_wall").setMaxAmount(64).setPlacedType(StateTypes.CINNABAR_WALL).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType POLISHED_CINNABAR = builder("polished_cinnabar").setMaxAmount(64).setPlacedType(StateTypes.POLISHED_CINNABAR).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType POLISHED_CINNABAR_SLAB = builder("polished_cinnabar_slab").setMaxAmount(64).setPlacedType(StateTypes.POLISHED_CINNABAR_SLAB).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType POLISHED_CINNABAR_STAIRS = builder("polished_cinnabar_stairs").setMaxAmount(64).setPlacedType(StateTypes.POLISHED_CINNABAR_STAIRS).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType POLISHED_CINNABAR_WALL = builder("polished_cinnabar_wall").setMaxAmount(64).setPlacedType(StateTypes.POLISHED_CINNABAR_WALL).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType CINNABAR_BRICKS = builder("cinnabar_bricks").setMaxAmount(64).setPlacedType(StateTypes.CINNABAR_BRICKS).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType CINNABAR_BRICK_SLAB = builder("cinnabar_brick_slab").setMaxAmount(64).setPlacedType(StateTypes.CINNABAR_BRICK_SLAB).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType CINNABAR_BRICK_STAIRS = builder("cinnabar_brick_stairs").setMaxAmount(64).setPlacedType(StateTypes.CINNABAR_BRICK_STAIRS).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType CINNABAR_BRICK_WALL = builder("cinnabar_brick_wall").setMaxAmount(64).setPlacedType(StateTypes.CINNABAR_BRICK_WALL).build();
+    /**
+     * @versions 26.2+
+     */
+    public static final ItemType CHISELED_CINNABAR = builder("chiseled_cinnabar").setMaxAmount(64).setPlacedType(StateTypes.CHISELED_CINNABAR).build();
 
     /**
      * @deprecated Burning furnace shows up as a missing texture, removed in 1.9
@@ -2073,13 +2191,7 @@ public final class ItemTypes {
     }
 
     static {
-        // all versions where base components were changed TODO UPDATE
-        ClientVersion[] versions = new ClientVersion[]{
-                ClientVersion.V_1_20_5, ClientVersion.V_1_21, ClientVersion.V_1_21_2,
-                ClientVersion.V_1_21_4, ClientVersion.V_1_21_5, ClientVersion.V_1_21_6,
-                ClientVersion.V_1_21_7, ClientVersion.V_1_21_9, ClientVersion.V_1_21_11,
-                ClientVersion.V_26_1,
-        };
+        ClientVersion[] versions = new ClientVersion[]{ONLY_SUPPORTED_VERSION};
         for (ClientVersion version : versions) {
             parseAllComponents(version);
         }
@@ -2115,17 +2227,35 @@ public final class ItemTypes {
     public static @Nullable ItemType getByName(String name) {
         ItemType itemType = REGISTRY.getByName(name);
         if (itemType == null) {
-            return PacketEvents.getAPI().getRegistryManager().getItemRegistry().getByName(name);
+            itemType = getRuntimeItemRegistry().getByName(name);
         }
         return itemType;
     }
 
     public static @Nullable ItemType getById(ClientVersion version, int id) {
-        ItemType itemType =  REGISTRY.getById(version, id);
+        ItemType itemType = REGISTRY.getById(version, id);
         if (itemType == null) {
-            return PacketEvents.getAPI().getRegistryManager().getItemRegistry().getById(id);
+            ensureLatestOnlyVersion(version);
+            itemType = getRuntimeItemRegistry().getById(id);
         }
         return itemType;
+    }
+
+    private static void ensureLatestOnlyVersion(@Nullable ClientVersion version) {
+        if (version == null || version != ONLY_SUPPORTED_VERSION) {
+            throw new IllegalStateException("Unsupported client version for latest-only item registry path: " + version
+                    + " (expected " + ONLY_SUPPORTED_VERSION + ")");
+        }
+    }
+
+    private static ItemRegistry getRuntimeItemRegistry() {
+        if (PacketEvents.getAPI() == null) {
+            throw new IllegalStateException("PacketEvents API is not initialized");
+        }
+        if (PacketEvents.getAPI().getRegistryManager() == null) {
+            throw new IllegalStateException("PacketEvents registry manager is not initialized");
+        }
+        return PacketEvents.getAPI().getRegistryManager().getItemRegistry();
     }
 
     public static ItemType getTypePlacingState(StateType type) {

@@ -43,8 +43,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NullMarked
 public class MappingIntegrityTest extends BaseDummyAPITest {
@@ -83,10 +85,33 @@ public class MappingIntegrityTest extends BaseDummyAPITest {
     }
 
     @Test
+    @DisplayName("Test 26.2 alias ordering in client version comparison")
+    public void testClientVersionAliasOrdering() {
+        assertTrue(ClientVersion.V_26_2.isNewerThan(ClientVersion.V_26_1));
+        assertFalse(ClientVersion.V_26_1.isNewerThan(ClientVersion.V_26_2));
+        assertTrue(ClientVersion.V_26_1.isOlderThan(ClientVersion.V_26_2));
+        assertTrue(ClientVersion.V_1_7_2.isOlderThan(ClientVersion.UNKNOWN));
+        assertFalse(ClientVersion.UNKNOWN.isOlderThan(ClientVersion.V_1_7_2));
+    }
+
+    @Test
     @DisplayName("Test item type mapping")
     public void testItemTypeMapping() {
         assertNotNull(ItemTypes.getByName("minecraft:piglin_head"));
         assertNotNull(ItemTypes.getByName("piglin_head"));
+    }
+
+    @Test
+    @DisplayName("Test 26.2 sulfur/cinnabar item id mapping")
+    public void test262SulfurItemIdMapping() {
+        assertEquals("minecraft:sulfur",
+                ItemTypes.getRegistry().getByIdOrThrow(ClientVersion.V_26_2, 26).getName().toString());
+        assertEquals("minecraft:potent_sulfur",
+                ItemTypes.getRegistry().getByIdOrThrow(ClientVersion.V_26_2, 27).getName().toString());
+        assertEquals("minecraft:sulfur_bricks",
+                ItemTypes.getRegistry().getByIdOrThrow(ClientVersion.V_26_2, 35).getName().toString());
+        assertEquals("minecraft:cinnabar",
+                ItemTypes.getRegistry().getByIdOrThrow(ClientVersion.V_26_2, 40).getName().toString());
     }
 
     @Test

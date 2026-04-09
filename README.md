@@ -42,16 +42,16 @@ This fork targets the Fabric official-mappings path and currently requires **JDK
 ### macOS / Linux
 
 ```bash
-git clone https://github.com/ohnodev/packetevents-26.1-only.git
-cd packetevents-26.1-only
+git clone https://github.com/ohnodev/packetevents.git packetevents-26.1
+cd packetevents-26.1
 ./gradlew clean build
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-git clone https://github.com/ohnodev/packetevents-26.1-only.git
-cd packetevents-26.1-only
+git clone https://github.com/ohnodev/packetevents.git packetevents-26.1
+cd packetevents-26.1
 .\gradlew.bat clean build
 ```
 
@@ -73,10 +73,14 @@ For Fabric servers, use `packetevents-fabric-<version>.jar` in your `mods/` fold
 
 This branch also includes a prebuilt Fabric artifact for convenience:
 
-- `prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.jar`
-- `prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.zip`
-- `prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.jar.sha256`
-- `prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.zip.sha256`
+- `prebuilt/packetevents-fabric-2.12.0+8111402-SNAPSHOT.jar`
+- `prebuilt/packetevents-fabric-2.12.0+8111402-SNAPSHOT.zip`
+- `prebuilt/packetevents-fabric-2.12.0+8111402-SNAPSHOT.jar.sha256`
+- `prebuilt/packetevents-fabric-2.12.0+8111402-SNAPSHOT.zip.sha256`
+- `prebuilt/packetevents-fabric-common-2.12.0+8111402-SNAPSHOT.jar`
+- `prebuilt/packetevents-fabric-common-2.12.0+8111402-SNAPSHOT.zip`
+- `prebuilt/packetevents-fabric-common-2.12.0+8111402-SNAPSHOT.jar.sha256`
+- `prebuilt/packetevents-fabric-common-2.12.0+8111402-SNAPSHOT.zip.sha256`
 
 That lets teammates pull this branch and deploy directly without building first.
 
@@ -84,12 +88,16 @@ Before using prebuilt artifacts, verify integrity:
 
 ```bash
 # Linux
-sha256sum -c prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.jar.sha256
-sha256sum -c prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.zip.sha256
+sha256sum -c prebuilt/packetevents-fabric-2.12.0+8111402-SNAPSHOT.jar.sha256
+sha256sum -c prebuilt/packetevents-fabric-2.12.0+8111402-SNAPSHOT.zip.sha256
+sha256sum -c prebuilt/packetevents-fabric-common-2.12.0+8111402-SNAPSHOT.jar.sha256
+sha256sum -c prebuilt/packetevents-fabric-common-2.12.0+8111402-SNAPSHOT.zip.sha256
 
 # macOS alternative
-shasum -a 256 prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.jar
-shasum -a 256 prebuilt/packetevents-fabric-2.12.0+c8a3436-SNAPSHOT.zip
+shasum -a 256 prebuilt/packetevents-fabric-2.12.0+8111402-SNAPSHOT.jar
+shasum -a 256 prebuilt/packetevents-fabric-2.12.0+8111402-SNAPSHOT.zip
+shasum -a 256 prebuilt/packetevents-fabric-common-2.12.0+8111402-SNAPSHOT.jar
+shasum -a 256 prebuilt/packetevents-fabric-common-2.12.0+8111402-SNAPSHOT.zip
 ```
 
 ### Troubleshooting

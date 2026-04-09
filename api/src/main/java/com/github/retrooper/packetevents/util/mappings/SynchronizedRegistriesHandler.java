@@ -53,6 +53,8 @@ import com.github.retrooper.packetevents.protocol.item.enchantment.type.Enchantm
 import com.github.retrooper.packetevents.protocol.item.enchantment.type.EnchantmentTypes;
 import com.github.retrooper.packetevents.protocol.item.instrument.Instrument;
 import com.github.retrooper.packetevents.protocol.item.instrument.Instruments;
+import com.github.retrooper.packetevents.protocol.item.type.ItemType;
+import com.github.retrooper.packetevents.protocol.item.type.ItemTypes;
 import com.github.retrooper.packetevents.protocol.item.jukebox.IJukeboxSong;
 import com.github.retrooper.packetevents.protocol.item.jukebox.JukeboxSongs;
 import com.github.retrooper.packetevents.protocol.item.trimmaterial.TrimMaterial;
@@ -100,6 +102,12 @@ public final class SynchronizedRegistriesHandler {
 
     private static final boolean FORCE_PER_USER_REGISTRIES = Boolean.getBoolean("packetevents.force-per-user-registries");
     private static final Map<ResourceLocation, RegistryEntry<?>> REGISTRY_KEYS = new HashMap<>();
+    private static final Map<Object, SimpleRegistry<ItemType>> SYNCED_ITEM_REGISTRIES = new ConcurrentHashMap<>(2);
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static final RegistryEntry<?> ITEM_REGISTRY_ENTRY = new RegistryEntry(
+            (IRegistry) ItemTypes.getRegistry(),
+            (NbtEntryDecoder) (tag, wrapper, data) -> null
+    );
 
     static {
         // packetevents ignores a few unimportant registries which aren't used anywhere else in the protocol:
@@ -165,6 +173,20 @@ public final class SynchronizedRegistriesHandler {
             @Nullable Object cacheKey
     ) {
         RegistryEntry<?> registryData = REGISTRY_KEYS.get(registryName);
+        if (registryData == null && registryName.equals(ItemTypes.getRegistry().getRegistryKey())) {
+            SimpleRegistry<ItemType> itemRegistry;
+            if (FORCE_PER_USER_REGISTRIES || cacheKey == null) {
+                itemRegistry = createSyncedItemRegistry(elements, wrapper);
+            } else {
+                itemRegistry = SYNCED_ITEM_REGISTRIES.computeIfAbsent(cacheKey, key -> createSyncedItemRegistry(elements, wrapper));
+            }
+            REGISTRY_KEYS.putIfAbsent(registryName, ITEM_REGISTRY_ENTRY);
+            // Keep global lookup path in sync with the cached synced registry path.
+            Object itemCacheKey = cacheKey != null ? cacheKey : wrapper.getServerVersion().toClientVersion();
+            ITEM_REGISTRY_ENTRY.computeSyncedRegistry(itemCacheKey, () -> itemRegistry);
+            user.putRegistry(itemRegistry);
+            return;
+        }
         if (registryData == null) {
             return;
         }
@@ -180,6 +202,22 @@ public final class SynchronizedRegistriesHandler {
         } catch (Exception exception) {
             throw new IllegalStateException("Error while reading registry " + registryName + " for " + user, exception);
         }
+    }
+
+    private static SimpleRegistry<ItemType> createSyncedItemRegistry(List<RegistryElement> elements, PacketWrapper<?> wrapper) {
+        ClientVersion version = wrapper.getServerVersion().toClientVersion();
+        SimpleRegistry<ItemType> registry = new SimpleRegistry<>(ItemTypes.getRegistry().getRegistryKey());
+        for (int id = 0; id < elements.size(); id++) {
+            RegistryElement element = elements.get(id);
+            ResourceLocation elementName = element.getId();
+            ItemType itemType = ItemTypes.getRegistry().getByName(version, elementName);
+            if (itemType != null) {
+                registry.define(elementName, id, itemType);
+            } else {
+                PacketEvents.getAPI().getLogger().warning("Unknown item registry entry " + elementName + " for " + version);
+            }
+        }
+        return registry;
     }
 
     public static void handleLegacyRegistries(

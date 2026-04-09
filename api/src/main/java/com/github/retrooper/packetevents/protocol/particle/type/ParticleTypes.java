@@ -80,6 +80,10 @@ public final class ParticleTypes {
         return REGISTRY.getByName(name);
     }
 
+    public static ParticleType<?> getByName(ClientVersion version, String name) {
+        return REGISTRY.getByName(version, name);
+    }
+
     public static ParticleType<?> getById(ClientVersion version, int id) {
         return REGISTRY.getById(version, id);
     }

@@ -100,6 +100,10 @@ public class WrapperPlayServerParticle extends PacketWrapper<WrapperPlayServerPa
         if (v1205) {
             this.particle = Particle.read(this);
         } else {
+            if (particleType == null) {
+                throw new IllegalStateException("Unknown particle type in packet for version "
+                        + serverVersion.toClientVersion() + " (id=" + particleTypeId + ")");
+            }
             ParticleData data;
             if (this.serverVersion.isNewerThanOrEquals(ServerVersion.V_1_13)) {
                 data = particleType.readData(this);

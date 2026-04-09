@@ -203,6 +203,10 @@ public final class EntityTypes {
     public static final EntityType SPECTRAL_ARROW = define("spectral_arrow", ABSTRACT_ARROW);
     public static final EntityType STRAY = define("stray", ABSTRACT_SKELETON);
     public static final EntityType STRIDER = define("strider", ABSTRACT_ANIMAL);
+    /**
+     * @versions 26.2+
+     */
+    public static final EntityType SULFUR_CUBE = define("sulfur_cube", SLIME);
     public static final EntityType EGG = define("egg", PROJECTILE_ABSTRACT);
     public static final EntityType ENDER_PEARL = define("ender_pearl", PROJECTILE_ABSTRACT);
     public static final EntityType EXPERIENCE_BOTTLE = define("experience_bottle", PROJECTILE_ABSTRACT);
